@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DataGrid, {Column, FilterRow, HeaderFilter, Paging} from "devextreme-react/data-grid";
-import { dataSource3 } from "../tasks/testData";
+import { Button } from 'devextreme-react/button';
+import { dataSource4 } from "../tasks2/testData2";
 import { useScreenSizeClass } from "./media-query";
 
 export default function RemindersGrid({
@@ -9,23 +10,53 @@ export default function RemindersGrid({
     showObservationForm,
     setBlankNewsObject
 }) {
+    const [samurais, setSamurais] = useState();
     let screenSize = useScreenSizeClass();
     const largeScreen =
     screenSize === "screen-large" || screenSize === "screen-medium";
     const smallScreen =
     screenSize === "screen-small" || screenSize === "screen-x-small";
 
+    function handleClick(){
+        const req = new XMLHttpRequest();
+        const url = "https://localhost:5001/api/samurais";
+
+        req.open('GET', url);
+        req.send();
+        req.onreadystatechange = () => 
+        {
+            let responseText = req.responseText;
+            var data = JSON.parse(responseText);
+            setSamurais(data)
+        }
+    }
+
 
     return (
+
         <div className="content-block dx-card responsive-paddings dx-card-with-toolbar gridContainer">
+            <Button
+                  width={120}
+                  text="Get Data"
+                  type="normal"
+                  stylingMode="contained"
+                  onClick={handleClick}
+            />
+            <Button
+                  text="Delete Data"
+                  type="normal"
+                  stylingMode="contained"
+                  onClick={() => {
+                    setSamurais(null)
+                  }}
+            />
+
             <DataGrid
                 className={'dx-card wide-card'}
-                dataSource={dataSource3}
+                dataSource={samurais}
                 showBorders={false}
                 width="100%"
-                // columnWidth={"10%"}
                 columnAutoWidth
-                // columnResizingMode={"widget"}
                 columnHidingEnabled
                 showColumnHeaders={!smallScreen}
                 onRowClick={() => alert("clicked")}
@@ -35,29 +66,17 @@ export default function RemindersGrid({
                 <HeaderFilter visible />
 
                 <Column
-                    dataField={"patient.patientId"}
+                    dataField={"id"}
                     caption={"ID"}
+                    width={"100px"}
                 />
                 <Column
-                    dataField={"patient.fullnameReverse"}
+                    dataField={"name"}
                     caption={"Name"}
-                    width={400}
-                />
-                <Column 
-                    dataField={"patient.dateOfBirth"}
-                    caption={"DOB"}
-                />
-
-                <Column
-                    dataField={"currentBed.location.name"}
-                    caption={"ward"}
-                />
-                <Column
-                    dataField={"observationFrequencyInMinutes"}
-                    caption={"Frequency"}
-                    visible={largeScreen}
                 />
             </DataGrid>
+            
+
         </div>
     );
 }
