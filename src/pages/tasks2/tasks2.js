@@ -18,26 +18,11 @@ export default function RemindersGrid({
     const smallScreen =
     screenSize === "screen-small" || screenSize === "screen-x-small";
 
+    useEffect(() => 
+        {getData()}
+    , []);
 
-    // Old Way of writing: 
-
-    // function handleClick(){
-    //     const req = new XMLHttpRequest();
-    //     const url = "https://localhost:5001/api/samurais";
-
-    //     req.open('GET', url);
-    //     req.send();
-    //     req.onreadystatechange = () => 
-    //     {
-    //         let responseText = req.responseText;
-    //         var data = JSON.parse(responseText);
-    //         setSamurais(data)
-    //     }
-    // }
-
-    // New Way of writing:
-
-    function handleClick(){
+    function getData(){
         const url = "https://localhost:5001/api/samurais";
 
         axios.get(url)
@@ -50,27 +35,24 @@ export default function RemindersGrid({
         
     }
 
-    const axios = require('axios').default;
+    function handleDeleteButton(e){
+        if (e.columnIndex === 2){
+            const url = `https://localhost:5001/api/Samurais/${e.key.id}`
+            axios.delete(url)
+                .then(getData);
+        }
+    }
+
+    function renderDeleteButton(){
+        return (
+            <i className="fa fa-trash-o" aria-hidden="true" ></i>
+        )
+    }
+
 
     return (
 
         <div className="content-block dx-card responsive-paddings dx-card-with-toolbar gridContainer">
-            <Button
-                  width={120}
-                  text="Get Data"
-                  type="normal"
-                  stylingMode="contained"
-                  onClick={handleClick}
-            />
-            <Button
-                  text="Delete Data"
-                  type="normal"
-                  stylingMode="contained"
-                  onClick={() => {
-                    setSamurais(null)
-                  }}
-            />
-
             <DataGrid
                 className={'dx-card wide-card'}
                 dataSource={samurais}
@@ -79,7 +61,7 @@ export default function RemindersGrid({
                 columnAutoWidth
                 columnHidingEnabled
                 showColumnHeaders={!smallScreen}
-                onRowClick={() => alert("clicked")}
+                onCellClick={handleDeleteButton}
             >
                 <Paging visible pageSize={10} />
                 {!smallScreen && <FilterRow visible />}
@@ -94,9 +76,31 @@ export default function RemindersGrid({
                     dataField={"name"}
                     caption={"Name"}
                 />
+                <Column
+                    width={"90px"}
+                    cellRender={renderDeleteButton}
+                    
+                />
             </DataGrid>
             
 
         </div>
     );
 }
+
+
+// Old Way of writing API requests: 
+
+// function handleClick(){
+//     const req = new XMLHttpRequest();
+//     const url = "https://localhost:5001/api/samurais";
+
+//     req.open('GET', url);
+//     req.send();
+//     req.onreadystatechange = () => 
+//     {
+//         let responseText = req.responseText;
+//         var data = JSON.parse(responseText);
+//         setSamurais(data)
+//     }
+// }
